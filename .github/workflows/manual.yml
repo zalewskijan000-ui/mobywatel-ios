@@ -11,13 +11,15 @@ jobs:
 
       - name: Build Swift Package
         run: |
-          # Wchodzimy do folderu App, gdzie znajduje się Package.swift
           cd App
+          
+          # Ta linijka naprawia błąd ze screena - wymusza nową wersję Swift Tools
+          echo '// swift-tools-version: 6.1' > Package.swift.tmp && cat Package.swift >> Package.swift.tmp && mv Package.swift.tmp Package.swift
           
           # Budujemy pakiet dla architektury iPhone'a
           swift build -c release --triple arm64-apple-ios
           
-          # Tworzymy strukturę pliku .ipa w katalogu głównym
+          # Tworzenie struktury pliku .ipa w katalogu głównym
           mkdir -p ../build/Payload
           
           # Kopiujemy zbudowaną aplikację, jeśli kompilator wygenerował plik .app
