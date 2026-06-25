@@ -11,21 +11,25 @@ jobs:
 
       - name: Build Swift Package
         run: |
+          # Wchodzimy do folderu App, gdzie znajduje się Package.swift
+          cd App
+          
+          # Budujemy pakiet dla architektury iPhone'a
           swift build -c release --triple arm64-apple-ios
           
-          # Tworzenie struktury pliku .ipa
-          mkdir -p build/Payload
+          # Tworzymy strukturę pliku .ipa w katalogu głównym
+          mkdir -p ../build/Payload
           
-          # Kopiowanie zbudowanej aplikacji (szukamy pliku .app w katalogu .build)
-          find .build -name "*.app" -exec cp -r {} build/Payload/ \; 2>/dev/null || true
+          # Kopiujemy zbudowaną aplikację, jeśli kompilator wygenerował plik .app
+          find .build -name "*.app" -exec cp -r {} ../build/Payload/ \; 2>/dev/null || true
           
-          # Jeśli autor nie tworzy bezpośrednio .app, spakujemy to co wypluł kompilator
-          if [ -z "$(ls -A build/Payload)" ]; then
-            mkdir -p build/Payload/App.app
-            find .build/release -type f -maxdepth 1 -exec cp {} build/Payload/App.app/ \;
+          # Jeśli pliku .app nie ma, pakujemy bezpośrednio pliki wykonywalne z katalogu release
+          if [ -z "$(ls -A ../build/Payload)" ]; then
+            mkdir -p ../build/Payload/App.app
+            find .build/release -type f -maxdepth 1 -exec cp {} ../build/Payload/App.app/ \;
           fi
           
-          cd build
+          cd ../build
           zip -r App.ipa Payload
 
       - name: Upload IPA
