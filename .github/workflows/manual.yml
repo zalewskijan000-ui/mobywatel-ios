@@ -9,15 +9,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Xcode
-        run: sudo xcode-select -s /Applications/Xcode.app
-
-      - name: Build App
+      - name: Build Swift Package
         run: |
-          xcodebuild -project App/App.xcodeproj -scheme App -configuration Release -sdk iphoneos CODE_SIGNING_ALLOWED=NO SUBMISSION_METHOD=local archive -archivePath $PWD/build/App.xcarchive
-          mkdir -p $PWD/build/Payload
-          cp -r $PWD/build/App.xcarchive/Products/Applications/*.app $PWD/build/Payload/
-          cd $PWD/build
+          swift build -c release --triple arm64-apple-ios
+          
+          # Tworzenie struktury pliku .ipa
+          mkdir -p build/Payload
+          
+          # Kopiowanie zbudowanej aplikacji (szukamy pliku .app w katalogu .build)
+          find .build -name "*.app" -exec cp -r {} build/Payload/ \; 2>/dev/null || true
+          
+          # Jeśli autor nie tworzy bezpośrednio .app, spakujemy to co wypluł kompilator
+          if [ -z "$(ls -A build/Payload)" ]; then
+            mkdir -p build/Payload/App.app
+            find .build/release -type f -maxdepth 1 -exec cp {} build/Payload/App.app/ \;
+          fi
+          
+          cd build
           zip -r App.ipa Payload
 
       - name: Upload IPA
