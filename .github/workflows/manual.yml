@@ -14,7 +14,7 @@ jobs:
 
       - name: Build App
         run: |
-          xcodebuild -project App/App.xcodeproj -scheme App -configuration Release -sdk iphoneos-latest CODE_SIGNING_ALLOWED=NO SUBMISSION_METHOD=local archive -archivePath $PWD/build/App.xcarchive
+          xcodebuild -project App/App.xcodeproj -scheme App -configuration Release -sdk iphoneos CODE_SIGNING_ALLOWED=NO SUBMISSION_METHOD=local archive -archivePath $PWD/build/App.xcarchive
           mkdir -p $PWD/build/Payload
           cp -r $PWD/build/App.xcarchive/Products/Applications/*.app $PWD/build/Payload/
           cd $PWD/build
